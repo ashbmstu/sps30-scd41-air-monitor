@@ -4,6 +4,10 @@
 # batch, and redraws the 128x250 e-paper panel every 30 seconds. The panel is
 # the reason for the averaging: a partial refresh is slow and visible, so it is
 # worth showing a settled number rather than the latest sample.
+#
+# Publishing to ThingSpeak is optional: it happens only if a config.py exists
+# on the board, and without one the radio is never switched on. See
+# docs/thingspeak.md.
 
 import time
 import framebuf
@@ -13,6 +17,11 @@ import DEPG0213BN as epaper
 from sps30uart import SPS30
 from sensor_pack_2.bus_service import I2cAdapter
 from scd4x_sensirion import SCD4xSensirion
+
+try:
+    import config
+except ImportError:
+    config = None
 
 DISP_INTERVAL = 30
 READ_INTERVAL = 1
@@ -30,6 +39,18 @@ SCD41_ADDR = 0x62
 
 WIDTH = epaper.EPD_WIDTH
 HEIGHT = epaper.EPD_HEIGHT
+
+WIFI_SSID = getattr(config, "WIFI_SSID", "")
+WIFI_PASS = getattr(config, "WIFI_PASS", "")
+TS_KEY = getattr(config, "THINGSPEAK_KEY", "")
+TS_INTERVAL = getattr(config, "UPLOAD_INTERVAL", 60)
+TS_HOST = "api.thingspeak.com"
+
+UPLOAD = bool(WIFI_SSID and TS_KEY)
+
+if UPLOAD:
+    import network
+    import usocket
 
 
 def draw_text_2x(display, text, x, y, color=0):
@@ -100,6 +121,57 @@ class Averager:
         return res
 
 
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    if not wlan.isconnected():
+        wlan.connect(WIFI_SSID, WIFI_PASS)
+        for _ in range(15):
+            if wlan.isconnected():
+                break
+            time.sleep(1)
+    if wlan.isconnected():
+        print("Wi-Fi:", wlan.ifconfig()[0])
+        return True
+    print("Wi-Fi: no connection")
+    return False
+
+
+def send_to_thingspeak(data):
+    # A field with no reading behind it is left out rather than sent as zero.
+    # On battery the SPS30 is unpowered, and a flat zero would read as clean
+    # air on the chart instead of as no measurement at all.
+    fields = []
+    if data["sps_ok"]:
+        fields.append("field1=%.1f" % data["PM2.5"])
+    if data["scd_ok"]:
+        fields.append("field2=%.1f" % data["CO2"])
+        fields.append("field3=%.1f" % data["T"])
+        fields.append("field4=%.1f" % data["RH"])
+    if not fields:
+        return False
+
+    query = "&".join(fields)
+    try:
+        if not network.WLAN(network.STA_IF).isconnected():
+            connect_wifi()
+        address = usocket.getaddrinfo(TS_HOST, 80)[0][-1]
+        sock = usocket.socket()
+        sock.settimeout(5)
+        sock.connect(address)
+        sock.write(f"GET /update?api_key={TS_KEY}&{query} HTTP/1.1\r\n"
+                   f"Host: {TS_HOST}\r\nConnection: close\r\n\r\n")
+        status = sock.readline()
+        sock.close()
+        if b"200" in status:
+            print("uploaded:", query)
+            return True
+        print("upload rejected:", status)
+    except Exception as error:
+        print("upload failed:", error)
+    return False
+
+
 def main():
     print("--- tqzr AirMon ---")
 
@@ -132,6 +204,9 @@ def main():
     scr.text("Starting...", 20, 60, 0)
     scr.update()
 
+    if UPLOAD:
+        connect_wifi()
+
     avg = Averager()
     active = True
     sps_active = False
@@ -144,6 +219,8 @@ def main():
 
     last_read = 0
     last_disp = 0
+    last_upload = 0
+    uploaded = False
 
     while True:
         now = time.time()
@@ -196,6 +273,10 @@ def main():
                 d = avg.get_avg()
                 pct = bat.get_status()
 
+                if UPLOAD and now - last_upload >= TS_INTERVAL:
+                    uploaded = send_to_thingspeak(d)
+                    last_upload = now
+
                 scr.fill(1)
                 scr.fill_rect(0, 0, WIDTH, 16, 0)
                 scr.text("tqzr AirMon", 20, 4, 1)
@@ -233,6 +314,11 @@ def main():
 
                 scr.hline(0, HEIGHT - 15, WIDTH, 0)
                 scr.text(f"Bat: {pct}%", 35, HEIGHT - 10, 0)
+
+                if UPLOAD:
+                    scr.rect(WIDTH - 12, HEIGHT - 11, 7, 7, 0)
+                    if uploaded:
+                        scr.fill_rect(WIDTH - 12, HEIGHT - 11, 7, 7, 0)
 
                 scr.update()
 

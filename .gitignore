@@ -1,3 +1,7 @@
+# Your own Wi-Fi and ThingSpeak settings. See docs/thingspeak.md - this file
+# holds a password and an API key, and it does not belong in a repository.
+config.py
+
 # Editor directories
 .vscode/
 .idea/

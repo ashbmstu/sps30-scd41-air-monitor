@@ -10,6 +10,7 @@
 
 - [ ] `python -m compileall -q src tools` passes
 - [ ] `python tools/check-pins.py` passes
+- [ ] No credentials in the diff, and no `config.py`
 - [ ] Tested on a built monitor
 
 If tested on hardware:

@@ -1,9 +1,21 @@
 # Security
 
-This firmware has no network stack. The ESP32 on this board has Wi-Fi and this
-firmware never switches the radio on, never opens a socket, and never stores a
-credential. Nothing leaves the device except what is printed to a USB serial
-console. There is no remote attack surface to report against.
+Out of the box this firmware opens no sockets and never switches the radio on.
+Nothing leaves the device except what is printed to a USB serial console.
+
+## Credentials
+
+The monitor can optionally publish readings to ThingSpeak, and doing so means
+putting a Wi-Fi password and a channel write key on the board in a `config.py`.
+That file is in `.gitignore` and there are no credentials anywhere in this
+repository. If you ever find one that has crept in — in a commit, in an issue,
+in a screenshot in the documentation — please report it rather than opening a
+pull request, so that it can be revoked before it is pointed at.
+
+Two properties of the upload are worth knowing rather than reporting, because
+they are how the service works rather than defects here: the request is plain
+HTTP with the key in the URL, so anyone on the same network can read it; and
+channel data is as public or private as you configure the channel to be.
 
 ## What is worth reporting
 

@@ -79,6 +79,17 @@ body:
     validations:
       required: true
 
+  - type: dropdown
+    id: publishing
+    attributes:
+      label: Is publishing configured?
+      description: Whether there is a config.py on the board. Never paste its contents.
+      options:
+        - "No - the monitor runs offline"
+        - "Yes - it publishes to ThingSpeak"
+    validations:
+      required: true
+
   - type: textarea
     id: scan
     attributes:

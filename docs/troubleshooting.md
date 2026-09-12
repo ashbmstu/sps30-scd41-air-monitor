@@ -87,6 +87,21 @@ Ghosting, and normal for e-paper after many partial updates. It clears on the
 next full refresh. Persistent heavy ghosting usually means the panel is cold —
 e-paper slows down markedly below about 10 °C.
 
+## The upload square in the corner is hollow
+
+Only relevant if you set up [publishing](thingspeak.md). Hollow means the last
+upload did not land.
+
+- **2.4 GHz only.** The ESP32 cannot see a 5 GHz network.
+- **Check the password** in `config.py`. `Wi-Fi: no connection` on the console
+  means it tried for fifteen seconds and gave up.
+- **`upload rejected`** on the console means the network is fine and ThingSpeak
+  refused the update, usually because `UPLOAD_INTERVAL` is below the fifteen
+  seconds a free channel allows.
+
+The monitor carries on measuring and refreshing either way. A failed upload
+never stops the measurement.
+
 ## The board does not appear as a serial port
 
 - Power switch, again.

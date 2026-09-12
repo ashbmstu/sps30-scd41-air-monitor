@@ -1,6 +1,6 @@
 # sps30-scd41-air-monitor
 
-**A desk box that tells you when to open a window, and whether the air you just stirred up has settled. Seven numbers on e-paper, no app and no cloud.**
+**A desk box that tells you when to open a window, and whether the air you just stirred up has settled. Seven numbers on e-paper, no app, and no cloud unless you ask for one.**
 
 [![CI](https://github.com/ashbmstu/sps30-scd41-air-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/ashbmstu/sps30-scd41-air-monitor/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -12,8 +12,9 @@ e-paper panel redraws every thirty seconds and holds the last reading with the
 power off, so the box is readable across a room and looks like a label rather
 than a screen.
 
-It does not connect to anything. The board has Wi-Fi; this firmware never
-switches the radio on.
+Out of the box it connects to nothing. The board has Wi-Fi, and this firmware
+leaves the radio off unless you give it a `config.py` asking for readings to be
+[published to a chart](docs/thingspeak.md).
 
 <p align="center">
   <img src="docs/img/device.jpg" width="330"
@@ -135,6 +136,19 @@ frame, and it leaves the I²C bus to the CO2 sensor alone.
 The button on the side pauses and resumes. Pausing stops the SPS30's fan, which
 is the only moving part and the only meaningful power draw.
 
+## Publishing readings
+
+The monitor can post each refresh to a free **ThingSpeak** channel and give you
+a chart instead of a snapshot. It is off unless you turn it on: without a
+`config.py` on the board the firmware never imports the networking modules and
+never switches the radio on. Five minutes to set up —
+[docs/thingspeak.md](docs/thingspeak.md).
+
+What gets sent is what is on the panel, the thirty-second average, and a
+reading that is not being taken is left out rather than sent as a zero. No
+credentials live in this repository, and `config.py` is in `.gitignore` so that
+yours do not end up in a fork of it.
+
 ## Limitations
 
 - **No particulates on battery.** The SPS30 needs 5 V. See the warning above.
@@ -150,8 +164,9 @@ is the only moving part and the only meaningful power draw.
 - **Battery percentage is a voltage guess**, not a fuel gauge, and lithium cells
   hold a nearly flat voltage across the middle of their range. Treat it as full,
   half and nearly empty.
-- **No logging and no clock.** The box shows the present moment and keeps no
-  history. There is nowhere for a reading to go.
+- **No logging and no clock.** The box itself shows the present moment and
+  keeps no history. [Publishing](docs/thingspeak.md) is the small version of a
+  record; there is nothing on the device.
 - **The temperature reads high.** The SCD41 sits in a closed box next to a
   warm ESP32 and a fan motor. Expect a couple of degrees above the room.
 
@@ -176,6 +191,7 @@ covering the firmware here. See [NOTICE](NOTICE).
 | [flashing.md](docs/flashing.md) | Installing MicroPython and copying the files. **Start here.** |
 | [hardware.md](docs/hardware.md) | Parts, wiring diagram, every connection, assembly order |
 | [measurement.md](docs/measurement.md) | What each number means, how to calibrate CO2, and how far to trust the rest |
+| [thingspeak.md](docs/thingspeak.md) | Optional: charting the readings over time |
 | [troubleshooting.md](docs/troubleshooting.md) | Symptom-first fault finding |
 
 ## Project status

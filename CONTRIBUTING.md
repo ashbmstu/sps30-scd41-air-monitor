@@ -38,6 +38,12 @@ against it. Please do not edit them, including to translate their comments. If
 one needs to behave differently, wrap it rather than patching it, and say in the
 pull request why upstream will not do.
 
+## Credentials
+
+Never commit a `config.py`. It is in `.gitignore`, it holds a Wi-Fi password and
+a ThingSpeak write key, and git remembers a file long after it is deleted. The
+same goes for a screenshot of a console with a key in it.
+
 ## Commit messages
 
 Use an imperative subject line under about 72 characters, with no type prefix.

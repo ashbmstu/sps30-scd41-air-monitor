@@ -56,6 +56,10 @@ and it will be created for you.
 Do not copy the `src` folder itself. If the board ends up with `src/main.py`,
 nothing will run at boot.
 
+`config.example.py` stays on your computer. Copy it across as `config.py`, with
+your own details in it, only if you want the monitor to publish readings — see
+[thingspeak.md](thingspeak.md).
+
 ## 4. Run it
 
 Press the T5's reset button, or unplug and replug. MicroPython runs `main.py`

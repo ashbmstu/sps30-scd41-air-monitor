@@ -35,6 +35,13 @@ this is the point at which somebody else could build one.
   [hardware](docs/hardware.md) with a wiring diagram,
   [measurement](docs/measurement.md) including the CO2 calibration procedure,
   and symptom-first [troubleshooting](docs/troubleshooting.md).
+- **Optional publishing to ThingSpeak.** Off unless a `config.py` is present on
+  the board, in which case the monitor joins a network and posts the thirty-
+  second average once a minute, to the same four fields the bench unit has
+  always used. A reading that is not being taken — PM2.5 on battery — is left
+  out rather than sent as a zero, which would draw as clean air. Without that
+  file the networking modules are never imported and the radio is never
+  switched on.
 - **A CI check that the pin numbers agree** across `src/main.py`,
   `docs/hardware.md` and the wiring diagram. Two of the four cross over between
   the board and the sensor, and that pairing is asserted rather than inferred,
@@ -42,8 +49,10 @@ this is the point at which somebody else could build one.
 
 ### Changed
 
-- **The firmware is offline.** It opens no sockets and never enables the radio.
-  Everything the box knows is on its front panel and on the serial console.
+- **Credentials come from a `config.py` that is not in this repository**, rather
+  than from constants in the firmware. `src/config.example.py` shows what goes
+  in it, and `.gitignore` keeps the real one out of git. With no such file the
+  firmware opens no sockets and never enables the radio.
 - Exception handlers catch `Exception` rather than using a bare `except:`, so
   Ctrl+C interrupts a board stuck in the sensor loop instead of being swallowed
   by it.
