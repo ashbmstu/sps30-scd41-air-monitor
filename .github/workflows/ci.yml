@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The firmware is MicroPython, so it cannot be imported here - the machine
+  # module does not exist on CPython and neither does `from micropython import
+  # const`. Compiling is as far as a runner can get, and it still catches the
+  # mistakes that would otherwise only show up as a board that boots into a
+  # traceback nobody is watching, on a display that keeps the last good frame.
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile the firmware and the tools
+        run: python -m compileall -q src tools
+
+  # Four GPIO numbers are written down in three places, and two of them cross
+  # over between the board and the sensor. See the docstring in
+  # tools/check-pins.py for why that pairing is asserted rather than inferred.
+  check-pins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check code, wiring table and diagram agree
+        run: python tools/check-pins.py
+
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check relative links in Markdown resolve
+        run: |
+          python3 - <<'EOF'
+          import os, re, subprocess, sys
+
+          MD = re.compile(r'\[([^\]]*)\]\(([^)]+)\)')
+          # GitHub renders raw HTML in Markdown, so <img src> and <a href> are
+          # just as user-visible as a Markdown link - and the pattern above is
+          # blind to them. Attribute values may be single- or double-quoted, and
+          # the tag may wrap across lines, which [^>] already spans.
+          HTML = re.compile(
+              r'<(?:img|a|source|video|audio|embed)\b[^>]*?'
+              r'\b(?:src|href|poster)\s*=\s*("[^"]*"|\'[^\']*\')',
+              re.IGNORECASE)
+          SKIP = ('http://', 'https://', 'mailto:', 'data:', 'tel:', '//', '#')
+
+          def targets(body):
+              for m in MD.finditer(body):
+                  yield 'md', m.group(2)
+              for m in HTML.finditer(body):
+                  yield 'html', m.group(1)[1:-1]
+
+          files = subprocess.check_output(['git', 'ls-files', '*.md'], text=True).split()
+          bad, checked = [], 0
+          for f in files:
+              with open(f, encoding='utf-8') as fh:
+                  body = fh.read()
+              for kind, raw in targets(body):
+                  target = raw.split('#')[0].strip()
+                  if not target or target.startswith(SKIP):
+                      continue
+                  checked += 1
+                  path = os.path.normpath(os.path.join(os.path.dirname(f), target))
+                  if not os.path.exists(path):
+                      bad.append('%s -> %s (%s)' % (f, target, kind))
+          if bad:
+              print('Broken relative links:')
+              for b in bad:
+                  print('  ' + b)
+              sys.exit(1)
+          print('All %d relative targets in %d Markdown files resolve.' % (checked, len(files)))
+          EOF
+
+      - name: Check Markdown heading anchors resolve
+        run: |
+          python3 - <<'EOF'
+          import os, re, subprocess, sys
+
+          def slug(h):
+              # GitHub lowercases, drops anything that is not alphanumeric,
+              # space, hyphen or underscore (em-dashes, parentheses and
+              # backticks all vanish), then turns spaces into hyphens. It does
+              # not collapse runs of spaces, so "A - B" with an em-dash gives
+              # "a--b" with two hyphens.
+              s = re.sub(r'[^\w\s-]', '', h.strip().lower(), flags=re.UNICODE)
+              return s.replace(' ', '-')
+
+          files = subprocess.check_output(['git', 'ls-files', '*.md'], text=True).split()
+          anchors = {}
+          for f in files:
+              with open(f, encoding='utf-8') as fh:
+                  body = fh.read()
+              # Repeated headings do not collapse: GitHub suffixes the second
+              # and later occurrences with -1, -2 and so on, in document order.
+              # Building a set here instead would report every link to a
+              # repeated heading as broken.
+              seen, found = {}, set()
+              for h in re.findall(r'^#{1,6}\s+(.*?)\s*$', body, re.M):
+                  base = slug(h)
+                  n = seen.get(base, 0)
+                  seen[base] = n + 1
+                  found.add(base if n == 0 else '%s-%d' % (base, n))
+              anchors[os.path.normpath(f)] = found
+
+          bad, checked = [], 0
+          for f in files:
+              with open(f, encoding='utf-8') as fh:
+                  body = fh.read()
+              html = re.finditer(
+                  r'<(?:a|img|source)\b[^>]*?\b(?:href|src)\s*=\s*("[^"]*"|\'[^\']*\')',
+                  body, re.IGNORECASE)
+              raws = [m.group(2) for m in re.finditer(r'\[([^\]]*)\]\(([^)]+)\)', body)]
+              raws += [m.group(1)[1:-1] for m in html]
+              for raw in raws:
+                  target = raw.strip()
+                  if target.startswith(('http://', 'https://', 'mailto:')) or '#' not in target:
+                      continue
+                  path, _, frag = target.partition('#')
+                  if not frag:
+                      continue
+                  dest = os.path.normpath(os.path.join(os.path.dirname(f), path)) if path else os.path.normpath(f)
+                  checked += 1
+                  if dest not in anchors:
+                      bad.append('%s -> %s (target file not tracked)' % (f, target))
+                  elif frag not in anchors[dest]:
+                      near = [a for a in anchors[dest] if a.startswith(frag[:12])]
+                      hint = ('   closest: ' + ', '.join(near)) if near else ''
+                      bad.append('%s -> %s%s' % (f, target, hint))
+          if bad:
+              print('Broken heading anchors:')
+              for b in bad:
+                  print('  ' + b)
+              sys.exit(1)
+          print('All %d anchor links resolve.' % checked)
+          EOF

@@ -1,0 +1,93 @@
+name: Bug report
+description: Something on a built monitor does not work
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing, please check
+        [docs/troubleshooting.md](https://github.com/ashbmstu/sps30-scd41-air-monitor/blob/main/docs/troubleshooting.md).
+        Note that `SPS OFF (Battery)` is correct behaviour on battery: the
+        particulate sensor needs 5 V and the board only has it over USB.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What the panel shows
+      description: Word for word, including any error text.
+      placeholder: 'The CO2 rows are replaced by "SCD41 ERR".'
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: dropdown
+    id: power
+    attributes:
+      label: Powered from
+      options:
+        - USB
+        - Battery
+        - Both, and it behaves differently
+    validations:
+      required: true
+
+  - type: input
+    id: micropython
+    attributes:
+      label: MicroPython version
+      description: Run `import sys; sys.implementation` at the REPL and paste the result.
+      placeholder: (name='micropython', version=(1, 23, 0, ''), ...)
+    validations:
+      required: true
+
+  - type: input
+    id: board
+    attributes:
+      label: Board and panel
+      description: Which T5 revision, and which e-paper panel it has.
+      placeholder: TTGO T5 V2.3, 2.13-inch DEPG0213BN
+    validations:
+      required: true
+
+  - type: input
+    id: sensors
+    attributes:
+      label: Sensors
+      description: Which CO2 part and which particulate sensor, and where they came from.
+      placeholder: SCD41 breakout from Adafruit, SPS30 direct from Sensirion
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Serial console
+      description: |
+        A dozen of the once-a-second lines, which show which sensor is answering:
+
+        ```
+        PM2.5:3.4 | CO2:612.0 T:22.8
+        ```
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: scan
+    attributes:
+      label: I2C scan
+      description: |
+        From the REPL, with the box wired up:
+
+        ```python
+        from machine import I2C, Pin
+        I2C(0, sda=Pin(21), scl=Pin(22), freq=100000).scan()
+        ```
+      render: shell

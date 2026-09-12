@@ -1,0 +1,17 @@
+# Editor directories
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+
+# MicroPython cross-compiler output
+*.mpy
+
+# OS noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*~

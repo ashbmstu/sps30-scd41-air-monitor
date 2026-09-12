@@ -1,0 +1,51 @@
+sps30-scd41-air-monitor
+Copyright (c) 2026 ash and contributors
+
+This project carries three third-party drivers verbatim, so that setting up a
+board is a matter of copying files and nothing else. This file is not legal
+advice; consult the upstream licences for the authoritative terms.
+
+---
+
+src/DEPG0213BN.py
+
+MicroPython driver for the DEPG0213BN e-paper panel fitted to the LILYGO TTGO
+T5, carried unmodified. MIT licensed.
+
+    https://github.com/Inqbus/micropython_DEPG0213BN
+
+The copy distributed here has no licence header of its own; the terms come from
+the upstream repository. Its own source comment credits the waveform tables to
+lewisxhe's GxEPD port.
+
+---
+
+src/scd4x_sensirion.py
+src/sensor_pack_2/
+
+Sensirion SCD4x driver and its supporting bus and CRC helpers, carried
+unmodified from the upstream project. MIT licensed, and the licence headers are
+present in the files themselves.
+
+    Copyright (c) 2022 Roman Shevchik
+    https://github.com/octaprog7/SCD4x
+
+These files are documented in Russian by their author. They are reproduced as
+published rather than translated, so that they can be checked against upstream.
+
+---
+
+src/sps30uart.py
+src/main.py
+
+Written for this project. MIT, as per LICENSE.
+
+---
+
+The enclosure
+
+The printed case is published separately on Thingiverse under a Creative
+Commons Attribution-ShareAlike licence, which is a different licence from the
+MIT terms covering the firmware here.
+
+    https://www.thingiverse.com/thing:7273904

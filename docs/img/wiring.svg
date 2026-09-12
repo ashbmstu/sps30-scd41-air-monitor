@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 580" width="920" height="580" role="img" aria-labelledby="t d">
+  <title id="t">Air monitor wiring</title>
+  <desc id="d">The SCD41 connects to GPIO21 and GPIO22 on the I2C bus and runs from 3V3. The SPS30 connects to GPIO15 and GPIO13 on UART1 and runs from 5V, which is only present while USB is connected. A lithium cell plugs into the board's battery connector.</desc>
+
+  <rect width="920" height="580" fill="#ffffff"/>
+
+  <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" fill="#1f2328">
+
+    <!-- wires -->
+    <g stroke-width="2" fill="none">
+      <path d="M225 210 H360" stroke="#cf222e"/>
+      <path d="M225 240 H360 M560 240 H695" stroke="#57606a"/>
+      <path d="M225 270 H360 M225 300 H360" stroke="#0969da"/>
+      <path d="M560 210 H695" stroke="#bc4c00" stroke-width="3"/>
+      <path d="M560 270 H695 M560 300 H695" stroke="#8250df"/>
+      <path d="M460 420 V355" stroke="#1a7f37"/>
+    </g>
+
+    <!-- boxes -->
+    <g fill="#ffffff" stroke="#57606a" stroke-width="2">
+      <rect x="50" y="130" width="175" height="195" rx="8"/>
+      <rect x="360" y="100" width="200" height="255" rx="8"/>
+      <rect x="695" y="130" width="175" height="195" rx="8"/>
+      <rect x="360" y="420" width="200" height="70" rx="8"/>
+    </g>
+
+    <!-- titles -->
+    <g text-anchor="middle">
+      <text x="137" y="163" font-size="16" font-weight="600">SCD41</text>
+      <text x="137" y="182" font-size="12" fill="#57606a">CO2, temperature, RH</text>
+      <text x="460" y="133" font-size="16" font-weight="600">TTGO T5 V2.3</text>
+      <text x="460" y="152" font-size="12" fill="#57606a">ESP32 + 2.13-inch e-paper</text>
+      <text x="782" y="163" font-size="16" font-weight="600">SPS30</text>
+      <text x="782" y="182" font-size="12" fill="#57606a">particulate matter</text>
+      <text x="460" y="452" font-size="15" font-weight="600">Li-ion LP603030</text>
+      <text x="460" y="471" font-size="12" fill="#57606a">3.7 V, 500 mAh, JST connector</text>
+    </g>
+
+    <!-- pin labels -->
+    <g font-size="13" text-anchor="end">
+      <text x="213" y="215">VDD</text>
+      <text x="213" y="245">GND</text>
+      <text x="213" y="275">SDA</text>
+      <text x="213" y="305">SCL</text>
+      <text x="548" y="215">5V</text>
+      <text x="548" y="245">GND</text>
+      <text x="548" y="275">IO15</text>
+      <text x="548" y="305">IO13</text>
+    </g>
+    <g font-size="13">
+      <text x="372" y="215">3V3</text>
+      <text x="372" y="245">GND</text>
+      <text x="372" y="275">IO21</text>
+      <text x="372" y="305">IO22</text>
+      <text x="707" y="215">VDD</text>
+      <text x="707" y="245">GND</text>
+      <text x="707" y="275">RX</text>
+      <text x="707" y="305">TX</text>
+    </g>
+    <text x="460" y="347" font-size="13" text-anchor="middle">BAT</text>
+
+    <!-- wire labels -->
+    <g font-size="12" text-anchor="middle">
+      <text x="292" y="203" fill="#cf222e">3V3</text>
+      <text x="292" y="233" fill="#57606a">GND</text>
+      <text x="292" y="263" fill="#0969da">GPIO21</text>
+      <text x="292" y="293" fill="#0969da">GPIO22</text>
+      <text x="627" y="201" fill="#bc4c00" font-weight="600">5V</text>
+      <text x="627" y="233" fill="#57606a">GND</text>
+      <text x="627" y="263" fill="#8250df">GPIO15 →</text>
+      <text x="627" y="293" fill="#8250df">GPIO13 ←</text>
+    </g>
+
+    <!-- bus captions -->
+    <g font-size="12" text-anchor="middle" fill="#57606a">
+      <text x="292" y="324">I²C bus 0, 100 kHz, address 0x62</text>
+      <text x="627" y="324">UART 1, 115200 baud</text>
+    </g>
+
+    <!-- footnotes -->
+    <g font-size="12" fill="#57606a">
+      <text x="50" y="522">The board transmits on GPIO15 into the SPS30's RX, and receives on GPIO13 from its TX. Crossing these is the usual fault.</text>
+      <text x="50" y="540" fill="#bc4c00">The SPS30 needs 5 V, and the board only has 5 V while USB is plugged in. On battery its fan stops and the PM rows go blank.</text>
+      <text x="50" y="558">Battery level is read internally on GPIO35 and the button is the board's own on GPIO39. Neither needs wiring.</text>
+    </g>
+
+  </g>
+</svg>
