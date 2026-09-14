@@ -10,25 +10,19 @@ advice; consult the upstream licences for the authoritative terms.
 src/DEPG0213BN.py
 
 MicroPython driver for the DEPG0213BN e-paper panel fitted to the LILYGO TTGO
-T5. The executable code is identical to upstream; this copy omits some blocks
-of commented-out C++ that upstream keeps for reference. Upstream is MIT
-licensed and the copy here has no licence header of its own, so the terms come
-from the upstream repository.
+T5. Upstream is MIT licensed; the copy here has no licence header of its own,
+so the terms come from the upstream repository.
 
     Copyright (c) 2021 Inqbus
     https://github.com/Inqbus/micropython_DEPG0213BN
 
-One part of the file deserves a separate note. The 153-byte partial-refresh
-waveform table, PART_UPDATE_LUT_TTGO_DKE, and the command sequence around it
-are the ones found in lewisxhe's fork of GxEPD (GxDEPG0213BN.cpp) and in
-ESPHome's waveshare_epaper component, both of which are GPL-3.0 C++ projects;
-the upstream author translated them to Python and published the result as MIT.
-The table is controller configuration data for the panel rather than program
-logic. It is carried here on that understanding, and this note exists so that
-nobody has to rediscover where it came from.
-
-    https://github.com/lewisxhe/GxEPD
-    https://github.com/esphome/esphome
+This copy is trimmed. Upstream also has a partial-refresh method whose
+waveform table and command sequence were translated from GPL-3.0 C++ (the
+lewisxhe fork of GxEPD, and ESPHome's e-paper component). This firmware only
+ever does full refreshes, so that method and its table are left out rather
+than redistributed under a licence they may not carry. The blocks of
+commented-out C++ that upstream keeps for reference are left out as well.
+Everything that remains is the upstream code as published.
 
 ---
 

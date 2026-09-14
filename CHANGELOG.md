@@ -65,3 +65,7 @@ this is the point at which somebody else could build one.
   by it.
 - Panel dimensions come from the display driver rather than being repeated as
   literals in the drawing code.
+- **The e-paper driver is carried without its partial-refresh method.** The
+  firmware never used it, and its waveform table was translated from GPL-3.0
+  code, which does not belong in an MIT repository. Full refreshes are
+  unchanged.
