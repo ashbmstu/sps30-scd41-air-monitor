@@ -47,6 +47,13 @@ this is the point at which somebody else could build one.
   the board and the sensor, and that pairing is asserted rather than inferred,
   so a documentation edit that quietly un-crosses them fails the build.
 
+### Fixed
+
+- **The CO2 sensor is stopped before it is restarted.** Boot called a stop method
+  this driver does not have and swallowed the error, so a sensor still measuring
+  from the previous run was never stopped before the start command was sent
+  again. It now uses the driver's own stop call.
+
 ### Changed
 
 - **Credentials come from a `config.py` that is not in this repository**, rather

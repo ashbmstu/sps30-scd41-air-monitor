@@ -188,8 +188,10 @@ def main():
         i2c = I2C(0, sda=Pin(PIN_SDA), scl=Pin(PIN_SCL), freq=100000)
         if SCD41_ADDR in i2c.scan():
             scd = SCD4xSensirion(I2cAdapter(i2c))
+            # A sensor still measuring from the previous run ignores the start
+            # command, so stop it first.
             try:
-                scd.stop_periodic_measurement()
+                scd.start_measurement(start=False)
             except Exception:
                 pass
             time.sleep(0.5)

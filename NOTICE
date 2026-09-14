@@ -1,5 +1,5 @@
 sps30-scd41-air-monitor
-Copyright (c) 2026 ash and contributors
+Copyright (c) 2026 ASH and contributors
 
 This project carries three third-party drivers verbatim, so that setting up a
 board is a matter of copying files and nothing else. This file is not legal
@@ -10,13 +10,25 @@ advice; consult the upstream licences for the authoritative terms.
 src/DEPG0213BN.py
 
 MicroPython driver for the DEPG0213BN e-paper panel fitted to the LILYGO TTGO
-T5, carried unmodified. MIT licensed.
+T5. The executable code is identical to upstream; this copy omits some blocks
+of commented-out C++ that upstream keeps for reference. Upstream is MIT
+licensed and the copy here has no licence header of its own, so the terms come
+from the upstream repository.
 
+    Copyright (c) 2021 Inqbus
     https://github.com/Inqbus/micropython_DEPG0213BN
 
-The copy distributed here has no licence header of its own; the terms come from
-the upstream repository. Its own source comment credits the waveform tables to
-lewisxhe's GxEPD port.
+One part of the file deserves a separate note. The 153-byte partial-refresh
+waveform table, PART_UPDATE_LUT_TTGO_DKE, and the command sequence around it
+are the ones found in lewisxhe's fork of GxEPD (GxDEPG0213BN.cpp) and in
+ESPHome's waveshare_epaper component, both of which are GPL-3.0 C++ projects;
+the upstream author translated them to Python and published the result as MIT.
+The table is controller configuration data for the panel rather than program
+logic. It is carried here on that understanding, and this note exists so that
+nobody has to rediscover where it came from.
+
+    https://github.com/lewisxhe/GxEPD
+    https://github.com/esphome/esphome
 
 ---
 
